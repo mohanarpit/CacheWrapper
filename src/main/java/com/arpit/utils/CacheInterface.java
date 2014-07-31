@@ -7,4 +7,8 @@ public interface CacheInterface {
 	public Object get(String key);
 	
 	public boolean shutdown();
+	
+	public enum MODE{
+		RANDOM, HASH;
+	}
 }

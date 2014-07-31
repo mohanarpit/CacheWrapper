@@ -16,7 +16,6 @@ public class MemcacheWrapper {
 	private static MemcachedClient[] connections = null ;
 	private static Integer numberOfConnections = 10 ;
 	private static String nodes = "127.0.0.1:11211" ;
-	public enum MODE { RANDOM, HASH };
 
 	private MemcacheWrapper() throws IOException {
 		connections = new MemcachedClient[numberOfConnections]; 
