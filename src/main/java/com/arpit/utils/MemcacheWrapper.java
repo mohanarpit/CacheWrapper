@@ -10,15 +10,14 @@ import net.spy.memcached.MemcachedClient;
  * @author arpit
  *
  */
-public class MemcacheWrapper implements CacheInterface {
+public class MemcacheWrapper extends Cache implements CacheInterface {
 	private static MemcacheWrapper instance= null ;
 	private static MemcachedClient[] connections = null ;
-	private Config config = new Config(); 
-
+	
 	private MemcacheWrapper() throws IOException {
-		connections = new MemcachedClient[config.getNumberOfConnections()]; 
-		for(int i=0 ; i<config.getNumberOfConnections() ; i++){
-			MemcachedClient	 client = new MemcachedClient(new DefaultConnectionFactory(),AddrUtil.getAddresses(config.getNodes())) ;
+		connections = new MemcachedClient[getConfig().getNumberOfConnections()]; 
+		for(int i=0 ; i<getConfig().getNumberOfConnections() ; i++){
+			MemcachedClient	 client = new MemcachedClient(new DefaultConnectionFactory(),AddrUtil.getAddresses(getConfig().getNodes())) ;
 			connections[i] = client; 
 		}
 	}
@@ -51,12 +50,12 @@ public class MemcacheWrapper implements CacheInterface {
 		switch(algorithm){
 		case RANDOM: 
 			//Randomly use one of the available connections in the pool
-			int i = (int) (Math.random()* config.getNumberOfConnections());
+			int i = (int) (Math.random()* getConfig().getNumberOfConnections());
 			c = connections[i];
 			break;
 		case HASH:
 			//Pick the cache node based on the key hash
-			int hashCode = key.hashCode() % config.getNumberOfConnections() ;
+			int hashCode = key.hashCode() % getConfig().getNumberOfConnections() ;
 			if(hashCode<0) hashCode *= -1; 
 			break;
 		}
@@ -64,28 +63,19 @@ public class MemcacheWrapper implements CacheInterface {
 	}
 
 	public void set(String key,  int ttl, Object obj ){
-		getCache(key).set(config.getNamespace()+key, ttl, obj) ;
+		getCache(key).set(getConfig().getNamespace()+key, ttl, obj) ;
 	}
 
 	public Object get(String key){
-		Object obj = getCache(key).get(config.getNamespace()+key) ;
+		Object obj = getCache(key).get(getConfig().getNamespace()+key) ;
 		return obj ;
 	}
 
 	public boolean shutdown(){
-		for(int i=0 ; i<config.getNumberOfConnections() ; i++){
+		for(int i=0 ; i<getConfig().getNumberOfConnections() ; i++){
 			if(connections[i] != null)
 				connections[i].shutdown(); 
 		}
 		return true; 
 	}
-
-	public Config getConfig() {
-		return config;
-	}
-
-	public void setConfig(Config config) {
-		this.config = config;
-	}
-	
 }
