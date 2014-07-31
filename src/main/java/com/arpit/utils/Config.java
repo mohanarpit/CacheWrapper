@@ -2,7 +2,7 @@ package com.arpit.utils;
 
 public class Config {
 	private Integer numberOfConnections = 10 ;
-	private String nodes = "127.0.0.1:11211";
+	private String nodes = "127.0.0.1";
 	private static String NAMESPACE="Default" ;
 	
 	/**

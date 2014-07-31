@@ -31,11 +31,11 @@ public class MemcacheWrapper extends Cache implements CacheInterface {
 		return instance; 
 	}
 
-	public MemcachedClient getCache(String key){
+	private MemcachedClient getCache(String key){
 		return getCache(key, MODE.RANDOM);
 	}
 
-	public MemcachedClient getCache(){
+	private MemcachedClient getCache(){
 		return getCache(null, MODE.RANDOM);
 	}
 
