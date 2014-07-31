@@ -10,23 +10,20 @@ import net.spy.memcached.MemcachedClient;
  * @author arpit
  *
  */
-public class MemcacheWrapper {
-	private static String NAMESPACE ;
+public class MemcacheWrapper implements CacheInterface {
 	private static MemcacheWrapper instance= null ;
 	private static MemcachedClient[] connections = null ;
-	private static Integer numberOfConnections = 10 ;
-	private static String nodes = "127.0.0.1:11211" ;
+	private Config config = new Config(); 
 
 	private MemcacheWrapper() throws IOException {
-		connections = new MemcachedClient[numberOfConnections]; 
-		for(int i=0 ; i<numberOfConnections ; i++){
-			MemcachedClient client = new MemcachedClient(new DefaultConnectionFactory(),AddrUtil.getAddresses(nodes)) ;
+		connections = new MemcachedClient[config.getNumberOfConnections()]; 
+		for(int i=0 ; i<config.getNumberOfConnections() ; i++){
+			MemcachedClient	 client = new MemcachedClient(new DefaultConnectionFactory(),AddrUtil.getAddresses(config.getNodes())) ;
 			connections[i] = client; 
 		}
 	}
 
 	public static MemcacheWrapper getInstance() throws IOException{
-
 		if(instance == null){
 			synchronized(MemcacheWrapper.class){
 				instance = new MemcacheWrapper(); 
@@ -54,12 +51,12 @@ public class MemcacheWrapper {
 		switch(algorithm){
 		case RANDOM: 
 			//Randomly use one of the available connections in the pool
-			int i = (int) (Math.random()* numberOfConnections);
+			int i = (int) (Math.random()* config.getNumberOfConnections());
 			c = connections[i];
 			break;
 		case HASH:
 			//Pick the cache node based on the key hash
-			int hashCode = key.hashCode() % numberOfConnections ;
+			int hashCode = key.hashCode() % config.getNumberOfConnections() ;
 			if(hashCode<0) hashCode *= -1; 
 			break;
 		}
@@ -67,56 +64,28 @@ public class MemcacheWrapper {
 	}
 
 	public void set(String key,  int ttl, Object obj ){
-		getCache(key).set(NAMESPACE+key, ttl, obj) ;
+		getCache(key).set(config.getNamespace()+key, ttl, obj) ;
 	}
 
 	public Object get(String key){
-		Object obj = getCache(key).get(NAMESPACE+key) ;
+		Object obj = getCache(key).get(config.getNamespace()+key) ;
 		return obj ;
 	}
 
 	public boolean shutdown(){
-		for(int i=0 ; i<numberOfConnections ; i++){
+		for(int i=0 ; i<config.getNumberOfConnections() ; i++){
 			if(connections[i] != null)
 				connections[i].shutdown(); 
 		}
 		return true; 
 	}
 
-	/**
-	 * Set the number of connections that will be supported from the application. Defaults to 10.
-	 * @param numberOfConnections
-	 */
-	public static void setNumberOfConnections(Integer numberOfConnections) {
-		MemcacheWrapper.numberOfConnections = numberOfConnections;
+	public Config getConfig() {
+		return config;
 	}
 
-	public static Integer getNumberOfConnections() {
-		return numberOfConnections;
+	public void setConfig(Config config) {
+		this.config = config;
 	}
-
-	/**
-	 * Set the namespace under which the keys will be stored.
-	 * @param namespace
-	 */
-	public static void setNamespace(String namespace) {
-		NAMESPACE = namespace;
-	}
-
-	public static String getNamespace() {
-		return NAMESPACE;
-	}
-
-	/**
-	 * Set the node addresses to which the application will connect. Defaults to 127.0.0.1:11211
-	 * Multiple nodes must be space separated. Example, "127.0.0.1:11211 192.168.x.x:11211"
-	 * @param nodeString
-	 */
-	public static void setNodes(String nodeString) {
-		nodes = nodeString;
-	}
-
-	public static String getNodes() {
-		return nodes;
-	}
+	
 }
