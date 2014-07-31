@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.arpit</groupId>
+  <artifactId>cache-wrapper</artifactId>
+  <versioning>
+    <versions>
+      <version>0.0.1-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20140731193455</lastUpdated>
+  </versioning>
+</metadata>
