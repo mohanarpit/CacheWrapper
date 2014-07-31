@@ -4,8 +4,8 @@ CacheWrapper
 This is an extremely simple wrapper around different caching back-ends. 
 
 Current back-ends supported:
-⋅⋅* Memcache
-⋅⋅* Redis (minimal support for Redis as an LRU cache. Clustering not enabled for Redis)
+  * Memcache
+  * Redis (minimal support for Redis as an LRU cache. Clustering not enabled for Redis)
 
 Add this repository as an alternate repository
 ```xml
